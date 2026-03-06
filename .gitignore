@@ -1,3 +1,64 @@
+# Build directory
+build/
+
+# ESP-IDF dependency lock
+dependencies.lock
+
+# Managed components (downloaded automatically)
+managed_components/
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# SDK config (machine-specific)
+sdkconfig
+sdkconfig.old
+sdkconfig.defaults.old
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# ESP-IDF tools metadata
+.espressif/
+
+# Flash / partition outputs
+*.bin
+*.elf
+*.map
+
+# ==============================
+# VSCode / IDE
+# ==============================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==============================
+# MacOS
+# ==============================
+
+.DS_Store
+
+# ==============================
+# Python
+# ==============================
+
+__pycache__/
+*.pyc
+*.pyo
+
+# ==============================
+# Generic C / C++
+# ==============================
+
 # Prerequisites
 *.d
 
@@ -5,11 +66,9 @@
 *.o
 *.ko
 *.obj
-*.elf
 
 # Linker output
 *.ilk
-*.map
 *.exp
 
 # Precompiled Headers
@@ -22,7 +81,7 @@
 *.la
 *.lo
 
-# Shared objects (inc. Windows DLLs)
+# Shared objects
 *.dll
 *.so
 *.so.*
