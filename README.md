@@ -130,6 +130,9 @@ hb> run bootcmd
 ```
 
 The idea was to replace the normal init process (/sbin/init) with /bin/sh, which would cause the kernel to drop directly into a root shell after boot. 
-However, after booting with this configuration I still got the same login prompt as before. 
+However, after booting with this configuration I still got the same login prompt as before, so there must be hardcoded bootargs in the compiled image that are overriding the U-boot bootargs.
 
+### tftpboot Exploitation
+
+The next method I tried was to use the tftpboot command in the U-Boot shell to load an OpenWrt image into RAM, and then boot it directly without modifying the flash memory. This would be very useful because it would allow me to test alternative firmware without having to overwrite flash memory and risk bricking the router. And once I had the alternative linux shell running, I'd be able to create a backup of the existing flash memory so that I can safely write new images to flash.
 
