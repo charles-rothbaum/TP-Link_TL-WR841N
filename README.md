@@ -60,6 +60,23 @@ Then, you can use ```screen``` or ```picocom``` to view the bytes coming through
 ```bash
 > picocom -b 115200 /dev/cu.usbmodem1234561
 ```
-Now, powering the router on should produce a looping autoboot sequence. Already, here are several things that we can learn about the router's architecture:
+Now, powering the router on should produce a looping U-boot sequence. Already, here are several things that we can learn about the router's architecture:
 
+<img width="823" height="735" alt="Screenshot 2026-03-09 at 1 07 18 PM" src="https://github.com/user-attachments/assets/53103b99-67e3-450f-bc51-c33f5709cee4" />
 
+```U-Boot 1.1.4 (Build from LSDK-9.5.3)```: 
+Bootloader: U-Boot 1.1.4
+
+SDK: LSDK-9.5.3.16
+
+```ap143 - Honey Bee 1.1```
+Qualcomm Atheros AP143 platform.
+
+```
+DRAM: 32 MB
+Flash Manuf Id 0xc2
+DeviceId0 0x20
+DeviceId1 0x16
+Flash: 4 MB
+```
+We only have 32 MB of RAM and 4 MB of FLASH memory on this board, so already we very limited with what kinds of modern firmware we can run on this platform.
