@@ -1,5 +1,5 @@
 # TP-Link_TL-WR841N
-TP-Link_TL-WR841N Firmware Reverse Engineering
+I picked up a TP-Link TL-WR841N router at a thrift store and noticed that the there's no complete resource for hacking this platform. This project documents the process of accessing the router’s internal serial console, capturing its boot output, and interacting with the U-Boot bootloader using an ESP32-S3 configured as a USB-to-UART bridge.
 
 ### Equipment
 - TP-Link TL-WR841N WiFi router
@@ -47,7 +47,7 @@ ESP32 pin 17 (Tx) <---> Router Rx
 
 ### The UART Console
 
-The ESP32’s firmware reads raw bytes coming from the router’s UART hardware, and those bytes are places in a USB packet buffer, and the TinyUSB driver sends those packets over the ESP32's native USB controller. The operating system will 
+The ESP32’s firmware reads raw bytes coming from the router’s UART hardware, and those bytes are places in a USB packet buffer, and the TinyUSB driver sends those packets over the ESP32's native USB controller. 
 
 The operating system recognizes the device as a USB CDC ACM serial device, so it automatically creates a serial port:
 ```bash
@@ -55,7 +55,7 @@ The operating system recognizes the device as a USB CDC ACM serial device, so it
 /dev/cu.usbmodem1234561 
 ```
 
-Then, you can use ```screen``` or ```picocom``` to view the bytes coming through UART. I found that the baud rate was 115200:
+Then, you can use ```screen``` or ```picocom``` to view the bytes coming through the USB. I found that the baud rate was 115200:
 
 ```bash
 > picocom -b 115200 /dev/cu.usbmodem1234561
@@ -65,12 +65,16 @@ Now, powering the router on should produce a looping U-boot sequence. Already, h
 <img width="823" height="735" alt="Screenshot 2026-03-09 at 1 07 18 PM" src="https://github.com/user-attachments/assets/53103b99-67e3-450f-bc51-c33f5709cee4" />
 
 ```U-Boot 1.1.4 (Build from LSDK-9.5.3)```: 
-Bootloader: U-Boot 1.1.4
 
-SDK: LSDK-9.5.3.16
+This output reveals that we are reading output from a U-Boot console, specifically U-Boot 1.1.4 and LSDK-9.5.3.16. This is great for us, because there is a lot of existing documentation on how to drop a U-Boot shell to a command shell that often allows direct memory access. 
 
 ```ap143 - Honey Bee 1.1```
-Qualcomm Atheros AP143 platform.
+
+This router runs on a Qualcomm Atheros AP143 platform.
+
+```Booting QCA953x```
+
+Specifically, a Qualcomm Atheros QCA953x with MIPS architecture. Now, we have enough information to locate an openWRT image that we could possibly run on this board. 
 
 ```
 DRAM: 32 MB
@@ -79,4 +83,25 @@ DeviceId0 0x20
 DeviceId1 0x16
 Flash: 4 MB
 ```
-We only have 32 MB of RAM and 4 MB of FLASH memory on this board, so already we very limited with what kinds of modern firmware we can run on this platform.
+Unfortunately, we only have 32 MB of RAM and 4 MB of FLASH memory on this board, so already we very limited with what kinds of modern firmware we can run on this platform.
+
+```
+Booting image at 9f020000
+```
+```
+Linux version 2.6.31
+```
+
+This router is flashed with Linux 2.6.31, and the kernel flash location is 0x9f020000.
+
+### U-Boot exploitation
+
+I tried several different U-Boot interrupt sequences I found online. The method which eventually worked was to repeatedly send `tpltpltpltpl` when U-boot messages ```Autobooting in 1 seconds```. 
+
+This drops the system into the ```hb>``` U-boot shell with several available commands:
+
+<img width="462" height="386" alt="Screenshot 2026-03-09 at 1 57 13 PM" src="https://github.com/user-attachments/assets/02d8435d-b59f-4abc-bd59-f7769bfca3e4" />
+
+
+
+
