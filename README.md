@@ -30,6 +30,7 @@ idf.py set-target esp32s3
 idf.py build
 idf.py -p /dev/tty.usbmodemXXXX flash
 idf.py -p /dev/tty.usbmodemXXXX monitor
+```
 
 ```bash
 Replace `/dev/tty.usbmodemXXXX` with your actual serial device.
@@ -42,4 +43,23 @@ ESP32 pin 18 (Rx) <---> Router Tx
 ESP32 pin 17 (Tx) <---> Router Rx
           ESP32 G <---> Router G
 ```
+<img width="991" height="720" alt="Screenshot 2026-03-09 at 12 35 57 PM" src="https://github.com/user-attachments/assets/e63ebebe-7ee7-40ac-8fd4-371b15346bad" />
+
+### The UART Console
+
+The ESP32’s firmware reads raw bytes coming from the router’s UART hardware, and those bytes are places in a USB packet buffer, and the TinyUSB driver sends those packets over the ESP32's native USB controller. The operating system will 
+
+The operating system recognizes the device as a USB CDC ACM serial device, so it automatically creates a serial port:
+```bash
+> ls /dev/cu*
+/dev/cu.usbmodem1234561 
+```
+
+Then, you can use ```screen``` or ```picocom``` to view the bytes coming through UART. I found that the baud rate was 115200:
+
+```bash
+> picocom -b 115200 /dev/cu.usbmodem1234561
+```
+Now, powering the router on should produce a looping autoboot sequence. Already, here are several things that we can learn about the router's architecture:
+
 
