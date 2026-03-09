@@ -4,17 +4,19 @@ I picked up a TP-Link TL-WR841N router at a thrift store and noticed that the th
 ### Equipment
 - TP-Link TL-WR841N WiFi router
 - ESP32-S3
+- Raspberry Pi 3 V2
+- Ethernet Cable
 ### Software 
 - ESP-IDF 5.x
 
 ## Steps
 ### Locate series port
-I used [this github article](https://github.com/adamhlt/TL-WR841N?tab=readme-ov-file) which identified the the series connectors, so I did not need to do any probing there.
+I found [this github article](https://github.com/adamhlt/TL-WR841N?tab=readme-ov-file) which identified the the series connectors, so I did not need to do any probing there.
 
 Here is a view of the TL-WR841N when you crack it open:
-<img width="610" height="455" alt="Screenshot 2026-03-06 at 8 28 16 AM" src="https://github.com/user-attachments/assets/bc147827-3cbf-4439-a804-2976b89ce2a9" />
+<img width="622" height="455" alt="Screenshot 2026-03-06 at 8 28 16 AM" src="https://github.com/user-attachments/assets/bc147827-3cbf-4439-a804-2976b89ce2a9" />
 
-And these are the labeled series ports that we are going to plug into our ESP32:
+And these are the series ports, labeled, that we are going to plug into our ESP32:
 
 <img width="325" height="624" alt="Screenshot 2026-03-06 at 8 36 22 AM" src="https://github.com/user-attachments/assets/9c050dac-506f-4ec5-83f0-f4bd323bc71a" />
 
@@ -94,6 +96,10 @@ Linux version 2.6.31
 
 This router is flashed with Linux 2.6.31, and the kernel flash location is 0x9f020000.
 
+### Linux Kernel
+
+I found that sending ```ctrl+c``` repeatedly during the u-boot sequence dropped the system to a linux login input: ```(none) login:```. I tested a few different common login defaults (```root root```, ```admin root```, ```admin admin```, etc.) but was unable to gain access to the linux shell, so I continued exploring how U-Boot could be exploited. 
+
 ### U-Boot exploitation
 
 I tried several different U-Boot interrupt sequences I found online. The method which eventually worked was to repeatedly send `tpltpltpltpl` when U-boot messages ```Autobooting in 1 seconds```. 
@@ -102,6 +108,28 @@ This drops the system into the ```hb>``` U-boot shell with several available com
 
 <img width="462" height="386" alt="Screenshot 2026-03-09 at 1 57 13 PM" src="https://github.com/user-attachments/assets/02d8435d-b59f-4abc-bd59-f7769bfca3e4" />
 
+Let's run ```printenv``` and see what else we can learn about this system:
 
+<img width="1263" height="332" alt="Screenshot 2026-03-09 at 2 06 29 PM" src="https://github.com/user-attachments/assets/80b11dea-b75a-4789-a5d1-b6d7eecf88ac" />
+
+From this output, we can see how the 4MB flash chip is partitioned:
+```
+Flash layout:
+0x9f000000  u-boot   128k   bootloader
+0x9f020000  kernel   1MB    linux kernel
+0x9f120000  rootfs   2.8MB  root filesystem
+0x9f3e0000  config   64k    settings
+0x9f3f0000  art      64k    unique wifi calibration settings for this unit
+```
+
+The next method I tried to gain access to the linux shell, was to change the boot configuration settings using the U-Boot ```setenv``` command.
+
+```
+hb> setenv bootargs console=ttyS0,115200 root=31:02 rootfstype=squashfs init=/bin/sh
+hb> run bootcmd
+```
+
+The idea was to replace the normal init process (/sbin/init) with /bin/sh, which would cause the kernel to drop directly into a root shell after boot. 
+However, after booting with this configuration I still got the same login prompt as before. 
 
 
