@@ -1,9 +1,11 @@
 # TP-Link_TL-WR841N
 TP-Link_TL-WR841N Firmware Reverse Engineering
 
-## Equipment
+### Equipment
 - TP-Link TL-WR841N WiFi router
 - ESP32-S3
+### Software 
+- ESP-IDF 5.x
 
 ## Steps
 ### Locate series port
@@ -20,7 +22,18 @@ As you can see, I just used some hot glue to tack some male-male jumper wires to
 
 <img width="571" height="504" alt="Screenshot 2026-03-06 at 8 48 43 AM" src="https://github.com/user-attachments/assets/2db1dcad-f326-4ec3-ac83-f3010f1c33a3" />
 
-### Listening to the console
+### Flash the ESP32
+The next step is to flash the UART-USB Interface firmware onto the ESP32.
+
+```bash
+idf.py set-target esp32s3
+idf.py build
+idf.py -p /dev/tty.usbmodemXXXX flash
+idf.py -p /dev/tty.usbmodemXXXX monitor
+```
+
+Replace `/dev/tty.usbmodemXXXX` with your actual serial device.
+```
 
 
 
