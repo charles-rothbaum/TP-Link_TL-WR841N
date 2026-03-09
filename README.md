@@ -30,10 +30,16 @@ idf.py set-target esp32s3
 idf.py build
 idf.py -p /dev/tty.usbmodemXXXX flash
 idf.py -p /dev/tty.usbmodemXXXX monitor
-```
 
+```bash
 Replace `/dev/tty.usbmodemXXXX` with your actual serial device.
 ```
 
+Next, connect the router's UART to the ESP32
 
+```bash
+ESP32 pin 18 (Rx) <---> Router Tx
+ESP32 pin 17 (Tx) <---> Router Rx
+          ESP32 G <---> Router G
+```
 
